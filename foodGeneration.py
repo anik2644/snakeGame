@@ -2,7 +2,7 @@ import random
 
 # Function to generate random coordinates
 def generate_random_coordinates(num_points):
-    coordinates = [(random.randint(0, 500), random.randint(0, 500)) for _ in range(num_points)]
+    coordinates = [(random.randint(-450, 450), random.randint(-350, 350)) for _ in range(num_points)]
     return coordinates
 
 # Function to save coordinates to a text file

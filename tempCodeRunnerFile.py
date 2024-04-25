@@ -1,1 +1,1 @@
-import glfw
+print("Food List:", foodList)

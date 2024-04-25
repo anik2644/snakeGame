@@ -1,3 +1,5 @@
+foodList = []
+
 # Open the file in read mode
 with open('foods.txt', 'r') as file:
     # Read the content of the file
@@ -6,7 +8,7 @@ with open('foods.txt', 'r') as file:
     lines = content.split('\n')
     
     # Initialize an empty list to store pairs of integers
-    foodList = []
+    
     
     # Iterate through each line in the file
     for line in lines:

@@ -2,12 +2,24 @@ import glfw
 from OpenGL.GL import *
 import sys
 
-W, H = 1000, 800
-
+W, H = 1000, 600
+foodList = []
 def draw_line(x1, y1, x2, y2):
+    # Set the line width
+    glLineWidth(6.0)
+
+    # Draw the line
     glBegin(GL_LINES)
+    glColor3ub(0, 255, 0)  # Green color for the line
     glVertex2f(x1, y1)
     glVertex2f(x2, y2)
+    glEnd()
+
+    # Draw the point (x1, y1) with a different color
+    glPointSize(10.0)
+    glBegin(GL_POINTS)
+    glColor3ub(255, 0, 0)  # Red color for the point
+    glVertex2f(x1, y1)
     glEnd()
 
 def main():
@@ -21,7 +33,7 @@ def main():
                 pair = line.split(', ')
                 foodList.append((int(pair[0]), int(pair[1])))
 
-    print("Food List:", foodList)
+    # print("Food List:", foodList)
 
     if not glfw.init():
         return
@@ -42,7 +54,7 @@ def main():
     glLoadIdentity()
 
     # Define the endpoints of the line
-    x1, y1 = -100.0, -50.0
+    x1, y1 = -100.0, 50.0
     x2, y2 = 100.0, 50.0
 
     # Set the color to white
@@ -55,6 +67,7 @@ def main():
     for point in foodList:
         # Set the color to white
         glColor3ub(255, 255, 255)
+        glPointSize(3.0) 
         # Draw a point at each coordinate
         glBegin(GL_POINTS)
         glVertex2f(point[0], point[1])
@@ -71,3 +84,4 @@ def main():
     glfw.terminate()
 
 main()
+
