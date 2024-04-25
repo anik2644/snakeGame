@@ -1,9 +1,15 @@
 import glfw
 from OpenGL.GL import *
 import sys
+import time
 
 W, H = 1000, 600
 foodList = []
+
+# Snake position
+snake_x = 500.0
+snake_y = 50.0
+
 def draw_line(x1, y1, x2, y2):
     # Set the line width
     glLineWidth(6.0)
@@ -22,6 +28,11 @@ def draw_line(x1, y1, x2, y2):
     glVertex2f(x1, y1)
     glEnd()
 
+def move_snake():
+    global snake_x
+    # Increment the snake's x-coordinate
+    snake_x -= 10
+
 def main():
     # Read the food list from the file
     with open('foods.txt', 'r') as file:
@@ -32,8 +43,6 @@ def main():
             if line:
                 pair = line.split(', ')
                 foodList.append((int(pair[0]), int(pair[1])))
-
-    # print("Food List:", foodList)
 
     if not glfw.init():
         return
@@ -53,35 +62,33 @@ def main():
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-    # Define the endpoints of the line
-    x1, y1 = -100.0, 50.0
-    x2, y2 = 100.0, 50.0
-
-    # Set the color to white
-    glColor3ub(255, 255, 255)
-
-    # Draw the line
-    draw_line(x1, y1, x2, y2)
-
-    # Draw all points from the food list
-    for point in foodList:
-        # Set the color to white
-        glColor3ub(255, 255, 255)
-        glPointSize(3.0) 
-        # Draw a point at each coordinate
-        glBegin(GL_POINTS)
-        glVertex2f(point[0], point[1])
-        glEnd()
-
-    glfw.swap_buffers(Window)
-    glfw.poll_events()
-
     while not glfw.window_should_close(Window):
-        if glfw.get_key(Window, glfw.KEY_ESCAPE) == glfw.PRESS:
-            break
-        glfw.wait_events()
+        glClear(GL_COLOR_BUFFER_BIT)
+
+        # Draw the line
+      #  draw_line(-100.0, 50.0, -50.0, 50.0)
+        
+        # Draw all points from the food list
+        for point in foodList:
+            glColor3ub(255, 255, 255)  # White color for the points
+            glPointSize(3.0)  # Set point size
+            glBegin(GL_POINTS)
+            glVertex2f(point[0], point[1])
+            glEnd()
+
+        # Draw the snake at its current position
+        draw_line(snake_x, snake_y, snake_x + 50, snake_y)
+
+        # Swap buffers
+        glfw.swap_buffers(Window)
+        glfw.poll_events()
+
+        # Pause for 0.5 seconds
+        time.sleep(0.1)
+
+        # Move the snake
+        move_snake()
 
     glfw.terminate()
 
 main()
-
