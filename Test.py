@@ -6,11 +6,46 @@ import time
 W, H = 1000, 600
 foodList = []
 
+Snake_direction = "down"
+sizeofSnake=0
 # Snake position
 snake_x = 50.0
 snake_y = 50.0
 reverse_direction = False
 paused = False
+
+def SnakeSize(x, y):
+    global Snake_direction, sizeofSnake
+    
+    if Snake_direction == "left":
+        return x + 30 + sizeofSnake, y
+    elif Snake_direction == "right":
+        return x - 30 - sizeofSnake, y
+    elif Snake_direction == "up":
+        return x, y - 30 - sizeofSnake
+    elif Snake_direction == "down":
+        return x, y + 30 + sizeofSnake
+
+
+
+def draw_Snake(x,y):
+    # Set the line width
+    x1, y1 = SnakeSize(x, y)
+    glLineWidth(4.0)
+    # Draw the body
+    glBegin(GL_LINES)
+    glColor3ub(0, 255, 0)  # Green color for the body
+    glVertex2f(x, y)
+    glVertex2f(x1 , y1)
+    glEnd()
+
+    # Draw the point (x1, y1) with a different color
+    glPointSize(10.0)
+    glBegin(GL_POINTS)
+    glColor3ub(255, 0, 0)  # Red color for the point
+    glVertex2f(x, y)
+    glEnd()
+
 
 def draw_snake_head(x, y, direction):
     # Set the line width
@@ -77,6 +112,16 @@ def main():
 
     # Set up the keyboard callback
     glfw.set_key_callback(Window, key_callback)
+    glfw.make_context_current(Window)
+
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    glOrtho(-W/2, W/2, -H/2, H/2, -1, 1)
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+
 
     # Read the food list from the file
     with open('foods.txt', 'r') as file:
@@ -88,15 +133,6 @@ def main():
                 pair = line.split(', ')
                 foodList.append((int(pair[0]), int(pair[1])))
 
-    glfw.make_context_current(Window)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    glOrtho(-W/2, W/2, -H/2, H/2, -1, 1)
-
-    glMatrixMode(GL_MODELVIEW)
-    glLoadIdentity()
 
     while not glfw.window_should_close(Window):
         glClear(GL_COLOR_BUFFER_BIT)
@@ -109,14 +145,16 @@ def main():
             glVertex2f(point[0], point[1])
             glEnd()
 
+        draw_Snake(snake_x, snake_y)
         # Draw the snake's head at its current position
         # Draw the snake's body
-        draw_snake_body(snake_x, snake_y)
 
-        if reverse_direction:
-            draw_snake_head(snake_x, snake_y, "left")
-        else:
-            draw_snake_head(snake_x, snake_y, "right")
+        # draw_snake_body(snake_x, snake_y)
+
+        # if reverse_direction:
+        #     draw_snake_head(snake_x, snake_y, "left")
+        # else:
+        #     draw_snake_head(snake_x, snake_y, "right")
 
         # Swap buffers
         glfw.swap_buffers(Window)
