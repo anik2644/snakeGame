@@ -3,11 +3,12 @@ from OpenGL.GL import *
 import sys
 import time
 
-W, H = 1000, 600
+W, H = 1200, 800
 foodList = []
 foodindex=0
 Snake_direction = "down"
 sizeofSnake=0
+bonusDelay = 3
 # Snake position
 snake_x = 50.0
 snake_y = 50.0
@@ -25,8 +26,6 @@ def SnakeSize(x, y):
         return x, y - 30 - sizeofSnake
     elif Snake_direction == "down":
         return x, y + 30 + sizeofSnake
-
-
 
 def draw_Snake(x,y):
     # Set the line width
@@ -84,12 +83,19 @@ def move_snake():
 
 def check_food_consume(snake_x, snake_y, food_point):
     
-    global foodList,sizeofSnake,foodindex
+    global foodList,sizeofSnake,foodindex,bonusDelay
 
     food_x, food_y = food_point
+    
     tolerance = 10 
+    if(foodindex%bonusDelay==bonusDelay-1):
+       tolerance = 35   # Set point size
+    else:
+        glPointSize(5.0)
+
+
     if abs(snake_x - food_x) <= tolerance and abs(snake_y - food_y) <= tolerance:
-      sizeofSnake+=5
+      sizeofSnake+=8
       foodindex+=1
       return True
     return False
@@ -109,7 +115,7 @@ def key_callback(window, key, scancode, action, mods):
         Snake_direction = "right"
 
 def main():
-    global paused , sizeofSnake,foodindex
+    global paused , sizeofSnake,foodindex,bonusDelay
 
     if not glfw.init():
         return
@@ -145,18 +151,16 @@ def main():
 
     while not glfw.window_should_close(Window):
         glClear(GL_COLOR_BUFFER_BIT)
-
-        # Draw all points from the food list
-        # for point in foodList:
-        #     glColor3ub(255, 255, 255)  # White color for the points
-        #     glPointSize(3.0)  # Set point size
-        #     glBegin(GL_POINTS)
-        #     glVertex2f(point[0], point[1])
-        #     glEnd()
  
         point = foodList[foodindex%100]
         glColor3ub(255, 255, 255)  # White color for the points
-        glPointSize(5.0)  # Set point size
+        
+        if(foodindex%bonusDelay==bonusDelay-1):
+            glPointSize(30.0)  # Set point size
+        else:
+            glPointSize(5.0)
+
+
         glBegin(GL_POINTS)
         glVertex2f(point[0], point[1])
         glEnd()
@@ -169,7 +173,7 @@ def main():
         glfw.poll_events()
 
         # Pause for 0.1 seconds
-        time.sleep(0.1)
+        time.sleep(0.05)
         #sizeofSnake+=5
         # Move the snake
         move_snake()
