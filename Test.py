@@ -11,7 +11,7 @@ snake_x = 500.0
 snake_y = 50.0
 reverse_direction = False
 
-def draw_line(x1, y1, x2, y2, color):
+def draw_Snake(x1, y1, x2, y2, color):
     # Set the line width
     glLineWidth(6.0)
 
@@ -35,16 +35,16 @@ def draw_snake_head(x, y, direction):
 
     # Draw the head based on the direction
     if direction == "right":
-        glBegin(GL_LINES)
-        glColor3ub(255, 0, 0)  # Red color for the head
-        glVertex2f(x, y)
-        glVertex2f(x + 6, y)  # Make the head slightly larger
+        glPointSize(10.0)
+        glBegin(GL_POINTS)
+        glColor3ub(255, 0, 0)  # Red color for the point
+        glVertex2f(x+50, y)
         glEnd()
     elif direction == "left":
-        glBegin(GL_LINES)
-        glColor3ub(255, 0, 0)  # Red color for the head
+        glPointSize(10.0)
+        glBegin(GL_POINTS)
+        glColor3ub(255, 0, 0)  # Red color for the point
         glVertex2f(x, y)
-        glVertex2f(x - 6, y)  # Make the head slightly larger
         glEnd()
 
 def draw_snake_body(x, y):
@@ -114,13 +114,13 @@ def main():
             glEnd()
 
         # Draw the snake's head at its current position
+        # Draw the snake's body
+        draw_snake_body(snake_x, snake_y)
+
         if reverse_direction:
             draw_snake_head(snake_x, snake_y, "left")
         else:
             draw_snake_head(snake_x, snake_y, "right")
-
-        # Draw the snake's body
-        draw_snake_body(snake_x, snake_y)
 
         # Swap buffers
         glfw.swap_buffers(Window)
