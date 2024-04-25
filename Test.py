@@ -64,8 +64,10 @@ def move_snake():
     global reverse_direction
 
     # Check if the snake reached the edge of the window
-    if snake_x <= -W/2 or snake_x >= W/2:
-        reverse_direction = not reverse_direction
+    if snake_x <= -W/2:
+        snake_x = W/2
+    elif snake_x >= W/2:
+        snake_x = -W/2
 
     # Move the snake in the appropriate direction
     if reverse_direction:
@@ -73,6 +75,7 @@ def move_snake():
     else:
         snake_x += 10
 
+        
 def main():
     # Read the food list from the file
     with open('foods.txt', 'r') as file:
