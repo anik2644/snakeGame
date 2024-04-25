@@ -7,27 +7,10 @@ W, H = 1000, 600
 foodList = []
 
 # Snake position
-snake_x = 500.0
+snake_x = 50.0
 snake_y = 50.0
 reverse_direction = False
-
-def draw_Snake(x1, y1, x2, y2, color):
-    # Set the line width
-    glLineWidth(6.0)
-
-    # Draw the line
-    glBegin(GL_LINES)
-    glColor3ub(*color)  # Set color
-    glVertex2f(x1, y1)
-    glVertex2f(x2, y2)
-    glEnd()
-
-    # Draw the point (x1, y1) with a different color
-    glPointSize(10.0)
-    glBegin(GL_POINTS)
-    glColor3ub(255, 0, 0)  # Red color for the point
-    glVertex2f(x1, y1)
-    glEnd()
+paused = False
 
 def draw_snake_head(x, y, direction):
     # Set the line width
@@ -38,7 +21,7 @@ def draw_snake_head(x, y, direction):
         glPointSize(10.0)
         glBegin(GL_POINTS)
         glColor3ub(255, 0, 0)  # Red color for the point
-        glVertex2f(x+50, y)
+        glVertex2f(x, y)
         glEnd()
     elif direction == "left":
         glPointSize(10.0)
@@ -55,28 +38,46 @@ def draw_snake_body(x, y):
     glBegin(GL_LINES)
     glColor3ub(0, 255, 0)  # Green color for the body
     glVertex2f(x, y)
-    glVertex2f(x + 50, y)
+    glVertex2f(x , y-50)
     glEnd()
 
 def move_snake():
-    global snake_x
     global snake_y
     global reverse_direction
 
-    # Check if the snake reached the edge of the window
-    if snake_x <= -W/2:
-        snake_x = W/2
-    elif snake_x >= W/2:
-        snake_x = -W/2
+    if not paused:
+        # Check if the snake reached the top or bottom edge of the window
+        if snake_y <= -H/2:
+            snake_y = H/2
+        elif snake_y >= H/2:
+            snake_y = -H/2
 
-    # Move the snake in the appropriate direction
-    if reverse_direction:
-        snake_x -= 10
-    else:
-        snake_x += 10
+        # Move the snake in the appropriate direction along the y-axis
+        if reverse_direction:
+            snake_y -= 10
+        else:
+            snake_y += 10
 
-        
+def key_callback(window, key, scancode, action, mods):
+    global paused
+
+    if key == glfw.KEY_SPACE and action == glfw.PRESS:
+        paused = not paused
+
 def main():
+    global paused
+
+    if not glfw.init():
+        return
+
+    Window = glfw.create_window(W, H, "Line and Points", None, None)
+    if not Window:
+        glfw.terminate()
+        return
+
+    # Set up the keyboard callback
+    glfw.set_key_callback(Window, key_callback)
+
     # Read the food list from the file
     with open('foods.txt', 'r') as file:
         content = file.read()
@@ -86,14 +87,6 @@ def main():
             if line:
                 pair = line.split(', ')
                 foodList.append((int(pair[0]), int(pair[1])))
-
-    if not glfw.init():
-        return
-
-    Window = glfw.create_window(W, H, "Line and Points", None, None)
-    if not Window:
-        glfw.terminate()
-        return
 
     glfw.make_context_current(Window)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
