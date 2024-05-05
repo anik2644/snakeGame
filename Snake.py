@@ -15,6 +15,8 @@ snake_y = 50.0
 reverse_direction = False
 paused = False
 
+total_score  =0
+
 def SnakeSize(x, y):
     global Snake_direction, sizeofSnake
     
@@ -83,7 +85,7 @@ def move_snake():
 
 def check_food_consume(snake_x, snake_y, food_point):
     
-    global foodList,sizeofSnake,foodindex,bonusDelay
+    global foodList,sizeofSnake,foodindex,bonusDelay,total_score
 
     food_x, food_y = food_point
     
@@ -95,9 +97,17 @@ def check_food_consume(snake_x, snake_y, food_point):
 
 
     if abs(snake_x - food_x) <= tolerance and abs(snake_y - food_y) <= tolerance:
+      if(foodindex%bonusDelay==bonusDelay-1):
+            total_score+= 50   #bonus
+      else:
+            total_score+=5
+
+
+      print("totalscore: ",total_score)  
       sizeofSnake+=8
       foodindex+=1
       return True
+    
     return False
 
 def key_callback(window, key, scancode, action, mods):
@@ -113,6 +123,23 @@ def key_callback(window, key, scancode, action, mods):
         Snake_direction = "left"
     elif key == glfw.KEY_RIGHT and action == glfw.PRESS:
         Snake_direction = "right"
+
+from OpenGL.GLUT import *
+
+def render_score():
+    glPushMatrix()
+    glLoadIdentity()
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+    glOrtho(-W/2, W/2, -H/2, H/2, -1, 1)
+    glColor3f(1.0, 1.0, 1.0)
+    glRasterPos2f(-W/2 + 10, H/2 - 30)
+    for char in "Score: " + str(total_score):
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ctypes.c_int(ord(char)))
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
+    glPopMatrix()
 
 def main():
     global paused , sizeofSnake,foodindex,bonusDelay
@@ -167,7 +194,7 @@ def main():
         
 
         check_food_consume(snake_x,snake_y,point)
-
+        render_score()  # Render the score on the screen
         draw_Snake(snake_x, snake_y)
         glfw.swap_buffers(Window)
         glfw.poll_events()
