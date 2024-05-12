@@ -1,179 +1,204 @@
-import glfw
+from OpenGL.GLUT import *
 from OpenGL.GL import *
+from OpenGL.GLU import *
+import glfw
 import sys
 import time
 
-W, H = 1000, 600
-foodList = []
-foodindex=0
-Snake_direction = "down"
-sizeofSnake=0
-# Snake position
-snake_x = 50.0
-snake_y = 50.0
-reverse_direction = False
-paused = False
+W, H = 1200, 800
+number = 88
 
-def SnakeSize(x, y):
-    global Snake_direction, sizeofSnake
-    
-    if Snake_direction == "left":
-        return x + 30 + sizeofSnake, y
-    elif Snake_direction == "right":
-        return x - 30 - sizeofSnake, y
-    elif Snake_direction == "up":
-        return x, y - 30 - sizeofSnake
-    elif Snake_direction == "down":
-        return x, y + 30 + sizeofSnake
+segments = {
+    0: [1, 1, 1, 1, 1, 1, 0],
+    1: [0, 1, 1, 0, 0, 0, 0],
+    2: [1, 1, 0, 1, 1, 0, 1],
+    3: [1, 1, 1, 1, 0, 0, 1],
+    4: [0, 1, 1, 0, 0, 1, 1],
+    5: [1, 0, 1, 1, 0, 1, 1],
+    6: [1, 0, 1, 1, 1, 1, 1],
+    7: [1, 1, 1, 0, 0, 0, 0],
+    8: [1, 1, 1, 1, 1, 1, 1],
+    9: [1, 1, 1, 1, 0, 1, 1]
+}
 
 
+characters = {
+    'A': [1, 1, 1, 0, 1, 1, 1],
+    'B': [1, 1, 1, 1, 1, 1, 0],
+    'C': [1, 0, 0, 1, 1, 1, 1],
+    'D': [1, 1, 1, 1, 1, 0, 1],
+    'E': [1, 0, 0, 1, 1, 1, 1],
+    'F': [1, 0, 0, 0, 1, 1, 1],
+    'G': [1, 0, 1, 1, 1, 1, 1],
+    'H': [0, 1, 1, 0, 1, 1, 0],
+    'I': [1, 1, 0, 0, 1, 1, 0],
+    'J': [0, 1, 1, 0, 1, 1, 1],
+    'K': [0, 1, 1, 0, 1, 0, 0],
+    'L': [0, 0, 0, 1, 1, 1, 1],
+    'M': [1, 1, 1, 0, 1, 1, 0],
+    'N': [1, 1, 1, 0, 1, 1, 0],
+    'O': [1, 1, 1, 1, 1, 1, 1],
+    'P': [1, 1, 0, 0, 1, 1, 1],
+    'Q': [1, 1, 1, 1, 1, 1, 0],
+    'R': [1, 1, 0, 0, 1, 1, 0],
+    'S': [1, 0, 1, 1, 0, 1, 1],
+    'T': [1, 1, 0, 0, 1, 0, 0],
+    'U': [0, 1, 1, 1, 1, 1, 1],
+    'V': [0, 1, 1, 1, 1, 1, 1],
+    'W': [1, 1, 1, 1, 1, 1, 1],
+    'X': [0, 1, 1, 0, 1, 1, 0],
+    'Y': [0, 1, 1, 0, 1, 0, 1],
+    'Z': [1, 0, 1, 1, 1, 0, 1]
+}
 
-def draw_Snake(x,y):
-    # Set the line width
-    x1, y1 = SnakeSize(x, y)
+
+# Define segment positions relative to the center of the window
+# segment_positions = [
+#     [(10, 700), (110, 700)],  # Top
+#     [(300, 700), (300, 650)],  # Right top
+#     [(300, 650), (300, 600)],  # Right bottom
+#     [(10, 300), (110, 300)],  # Bottom
+#     [(100, 650), (100, 600)],  # Left bottom
+#     [(100, 700), (100, 650)],  # Left top
+#     [(10, 500), (110, 500)]   # Middle
+# ]
+
+segment_positions = [
+    [(20, 725), (60, 725)],    # Top
+    [(60, 725), (60, 675)],    # Right top
+    [(60, 675), (60, 625)],    # Right bottom
+    [(20, 625), (60, 625)],    # Bottom
+    [(20, 675), (20, 625)],    # Left bottom
+    [(20, 725), (20, 675)],    # Left top
+    [(20, 675), (60, 675)]     # Middle
+]
+
+
+def draw_segment(x1, y1, x2, y2):
     glLineWidth(4.0)
-    # Draw the body
     glBegin(GL_LINES)
     glColor3ub(0, 255, 0)  # Green color for the body
-    glVertex2f(x, y)
-    glVertex2f(x1 , y1)
+    glVertex2f(x1, y1)
+    glVertex2f(x2, y2)
     glEnd()
 
-    # Draw the point (x1, y1) with a different color
-    glPointSize(10.0)
-    glBegin(GL_POINTS)
-    glColor3ub(255, 0, 0)  # Red color for the point
-    glVertex2f(x, y)
-    glEnd()
 
-def move_snake():
-    global snake_y, snake_x, Snake_direction, reverse_direction
+def draw_number():
+    global number
+    glColor3f(1.0, 1.0, 1.0)
 
-    if not paused:
-        # Check if the snake reached the top, bottom, left, or right edge of the window
-        if snake_y <= -H/2:
-            snake_y = H/2
-        elif snake_y >= H/2:
-            snake_y = -H/2
-        if snake_x <= -W/2:
-            snake_x = W/2
-        elif snake_x >= W/2:
-            snake_x = -W/2
+    # For three-digit numbers, draw the first digit
+    if number >= 100:
+        for i, segment in enumerate(segments[number // 100]):
+            if segment:
+                x1 = segment_positions[i][0][0]  # Shift the position for the second digit
+                y1 = segment_positions[i][0][1]
+                x2 = segment_positions[i][1][0]
+                y2 = segment_positions[i][1][1]
+                draw_segment(x1, y1, x2, y2)
 
-        # Move the snake in the appropriate direction along the y-axis or x-axis
-        if Snake_direction == "up":
-            if reverse_direction:
-                snake_y -= 10
-            else:
-                snake_y += 10
-        elif Snake_direction == "down":
-            if reverse_direction:
-                snake_y += 10
-            else:
-                snake_y -= 10
-        elif Snake_direction == "left":
-            if reverse_direction:
-                snake_x += 10
-            else:
-                snake_x -= 10
-        elif Snake_direction == "right":
-            if reverse_direction:
-                snake_x -= 10
-            else:
-                snake_x += 10
+    # Draw the second digit
+    for i, segment in enumerate(segments[(number % 100) // 10]):
+        if segment:
+            x1 = segment_positions[i][0][0] + 80
+            y1 = segment_positions[i][0][1]
+            x2 = segment_positions[i][1][0] + 80
+            y2 = segment_positions[i][1][1]
+            draw_segment(x1, y1, x2, y2)
 
-def check_food_consume(snake_x, snake_y, food_point):
+    # Draw the third digit
+    for i, segment in enumerate(segments[number % 10]):
+        if segment:
+            x1 = segment_positions[i][0][0] + 160
+            y1 = segment_positions[i][0][1]
+            x2 = segment_positions[i][1][0] + 160
+            y2 = segment_positions[i][1][1]
+            draw_segment(x1, y1, x2, y2)
+
+
+def display():
+    global number
+    glClear(GL_COLOR_BUFFER_BIT)
+    glLoadIdentity()
     
-    global foodList,sizeofSnake,foodindex
+    # Draw the rectangle border
+    glColor3ub(255, 255, 255)  # White color for the border
+    glLineWidth(2.0)
+    glBegin(GL_LINE_LOOP)
+    glVertex2f(10, 600)     # Bottom left corner
+    glVertex2f(10, 750)    # Top left corner
+    glVertex2f(300, 750)   # Top right corner
+    glVertex2f(300, 600)    # Bottom right corner
+    glEnd()
+    
+    # Draw the digits
+    draw_number()
+    
+    glfw.swap_buffers(Window)
+    time.sleep(0.1)
+    number = (number + 1) % 1000  # Cycle through numbers 0 to 999
 
-    food_x, food_y = food_point
-    tolerance = 10 
-    if abs(snake_x - food_x) <= tolerance and abs(snake_y - food_y) <= tolerance:
-      sizeofSnake+=5
-      foodindex+=1
-      return True
-    return False
+
+
 
 def key_callback(window, key, scancode, action, mods):
-    global paused, Snake_direction
+    global number
+    if action == glfw.PRESS:
+        if key == glfw.KEY_0:
+            number = 0
+        elif key == glfw.KEY_1:
+            number = 1
+        elif key == glfw.KEY_2:
+            number = 2
+        elif key == glfw.KEY_3:
+            number = 3
+        elif key == glfw.KEY_4:
+            number = 4
+        elif key == glfw.KEY_5:
+            number = 5
+        elif key == glfw.KEY_6:
+            number = 6
+        elif key == glfw.KEY_7:
+            number = 7
+        elif key == glfw.KEY_8:
+            number = 8
+        elif key == glfw.KEY_9:
+            number = 9
 
-    if key == glfw.KEY_SPACE and action == glfw.PRESS:
-        paused = not paused
-    elif key == glfw.KEY_UP and action == glfw.PRESS:
-        Snake_direction = "up"
-    elif key == glfw.KEY_DOWN and action == glfw.PRESS:
-        Snake_direction = "down"
-    elif key == glfw.KEY_LEFT and action == glfw.PRESS:
-        Snake_direction = "left"
-    elif key == glfw.KEY_RIGHT and action == glfw.PRESS:
-        Snake_direction = "right"
+        while not glfw.window_should_close(Window):
+            display()
+
+        # Print the number in the console
+        print("Number:", number)
+
 
 def main():
-    global paused , sizeofSnake,foodindex
-
+    global Window
     if not glfw.init():
         return
 
-    Window = glfw.create_window(W, H, "Line and Points", None, None)
+    Window = glfw.create_window(W, H, "Number Display", None, None)
     if not Window:
         glfw.terminate()
         return
 
-    # Set up the keyboard callback
-    glfw.set_key_callback(Window, key_callback)
     glfw.make_context_current(Window)
-
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
-    glOrtho(-W/2, W/2, -H/2, H/2, -1, 1)
+    glOrtho(0, W, 0, H, -1, 1)
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-
-    # Read the food list from the file
-    with open('foods.txt', 'r') as file:
-        content = file.read()
-        lines = content.split('\n')
-        foodList = []
-        for line in lines:
-            if line:
-                pair = line.split(', ')
-                foodList.append((int(pair[0]), int(pair[1])))
-
+    glfw.set_key_callback(Window, key_callback)
 
     while not glfw.window_should_close(Window):
-        glClear(GL_COLOR_BUFFER_BIT)
-
-        # Draw all points from the food list
-        # for point in foodList:
-        #     glColor3ub(255, 255, 255)  # White color for the points
-        #     glPointSize(3.0)  # Set point size
-        #     glBegin(GL_POINTS)
-        #     glVertex2f(point[0], point[1])
-        #     glEnd()
- 
-        point = foodList[foodindex%100]
-        glColor3ub(255, 255, 255)  # White color for the points
-        glPointSize(5.0)  # Set point size
-        glBegin(GL_POINTS)
-        glVertex2f(point[0], point[1])
-        glEnd()
-        
-
-        check_food_consume(snake_x,snake_y,point)
-
-        draw_Snake(snake_x, snake_y)
-        glfw.swap_buffers(Window)
+        display()
         glfw.poll_events()
-
-        # Pause for 0.1 seconds
-        time.sleep(0.1)
-        #sizeofSnake+=5
-        # Move the snake
-        move_snake()
 
     glfw.terminate()
 
-main()
+
+if __name__ == "__main__":
+    main()
