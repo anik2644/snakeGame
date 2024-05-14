@@ -8,7 +8,8 @@ import sys
 import math
 
 
-
+# this function draaw the boundry rectangle where snake can be move
+# if snake touch this rectangle edge game will over
 def draw_rectangle_outline(width, height, edge_width):
     half_width = width / 2
     half_height = height / 2

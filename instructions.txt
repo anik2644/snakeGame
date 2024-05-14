@@ -1,0 +1,13 @@
+1. Ensure you have Python installed on your system.
+2. Install the required libraries using pip:
+   - OpenGL: `pip install PyOpenGL`
+   - GLFW: `pip install glfw`
+
+
+3. Run the Python script `SnakeGAME.py`.to play the actual game
+4. Run the Python script `Lavel0_Snake.py`.to play the another Lavel of this game which is more easier on the actual SnakeGAME
+
+5. Use the arrow keys to control the snake's direction.
+6. Press the spacebar to pause/unpause the game.
+
+

@@ -6,7 +6,10 @@ import glfw
 import time
 import sys
 import math
-# from character import Characters
+
+# Define characters as patterns of '*' and ' ' (space)
+# Each character is represented as a list of strings
+# Each string represents a row of the character
 
 
 
@@ -320,6 +323,10 @@ Semicolon = [
     "  *  "
 ]
 
+
+# Define a dictionary to map characters to their patterns
+
+
 Characters = {
   'A': CHAR_A,
   'B': CHAR_B,
@@ -364,7 +371,7 @@ Characters = {
 
 
 
-# Rainbow colors
+# Function to calculate rainbow color based on index and total
 def rainbow_color(index, total):
     # Calculate the color using sine function to create a rainbow effect
     r = math.sin(index / total * math.pi * 2 + 0) * 0.5 + 0.5
@@ -372,6 +379,8 @@ def rainbow_color(index, total):
     b = math.sin(index / total * math.pi * 2 + 4) * 0.5 + 0.5
     return r, g, b
 
+
+# Function to draw a dot at a given position with a given color
 def draw_dot(x, y, color):
     GL.glPointSize(5.0)
     GL.glColor3f(*color)
@@ -379,6 +388,9 @@ def draw_dot(x, y, color):
     GL.glVertex2f(x, y)
     GL.glEnd()
 
+
+
+# Function to display a character pattern at a given position with a given color
 def display_char(char_pattern, x_offset, color):
     for j, row in enumerate(reversed(char_pattern)):
         for i, dot in enumerate(row):
@@ -388,7 +400,7 @@ def display_char(char_pattern, x_offset, color):
                 
     
 
-
+# Display word directly amd straight forward without any animation
 def ddisplay_word(Window, word):
     word_width = sum(len(Characters[char][0]) * 10 for char in word)
     x_offset = -word_width / 2  # Center the word
@@ -405,7 +417,7 @@ def ddisplay_word(Window, word):
 
 
 
-                
+# Display word character by character with animation if animate then it will take rainbow color otherwise just will take white color animation                
 def display_word(Window,word, animate):
     word_width = sum(len(Characters[char][0]) * 10 for char in word)
     x_offset = -word_width / 2  # Center the word
@@ -426,6 +438,6 @@ def display_word(Window,word, animate):
                 glfw.swap_buffers(Window)
                 display_char(Characters[char], x_offset, color)
                 x_offset += len(Characters[char][0]) * 10 + 10  # Increase x_offset for the next character
-            time.sleep(.4)
+            time.sleep(.4) # Clear the buffer after displaying the word
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)

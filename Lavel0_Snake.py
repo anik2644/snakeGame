@@ -5,20 +5,24 @@ import glfw
 import sys
 import time
 
+# Set the width and height of the window
 W, H = 1200, 800
-foodList = []
-foodindex = 0
-Snake_direction = "down"
-sizeofSnake = 0
-bonusDelay = 3
-# Snake position
-snake_x = 50.0
-snake_y = 50.0
-reverse_direction = False
-paused = False
-total_score = 0
 
 
+# Initialize variables for the game
+foodList = []           # List to store food coordinates
+foodindex = 0           # Index to track the current food
+Snake_direction = "down"    # Initial direction of the snake
+sizeofSnake = 0         # Initial size of the snake
+bonusDelay = 3          # Interval for bonus points
+snake_x = 50.0          # Initial x-coordinate of the snake
+snake_y = 50.0          # Initial y-coordinate of the snake
+reverse_direction = False   # Flag to reverse snake direction
+paused = False          # Flag to pause the game
+total_score = 0         # Total score of the game
+
+
+# Segment definitions for displaying numbers
 segments = {
     0: [1, 1, 1, 1, 1, 1, 0],
     1: [0, 1, 1, 0, 0, 0, 0],
@@ -32,7 +36,7 @@ segments = {
     9: [1, 1, 1, 1, 0, 1, 1]
 }
 
-
+# Positions for displaying numbers
 segment_positions = [
     [(-520, 340), (-480, 340)],    # Top
     [(-480, 340), (-480, 290)],    # Right top
@@ -43,6 +47,7 @@ segment_positions = [
     [(-520, 290), (-480, 290)]     # Middle
 ]
 
+# Function to draw a line segment between two points
 def draw_segment(x1, y1, x2, y2):
     glLineWidth(4.0)
     glBegin(GL_LINES)
@@ -51,7 +56,7 @@ def draw_segment(x1, y1, x2, y2):
     glVertex2f(x2, y2)
     glEnd()
 
-
+# Function to draw a digit based on segment patterns
 def draw_number(number):
     
     glColor3f(1.0, 1.0, 1.0)
@@ -85,12 +90,10 @@ def draw_number(number):
             draw_segment(x1, y1, x2, y2)
 
 
-
+# Function to display the score on the screen
 def display_score(number):
      
-   # glClear(GL_COLOR_BUFFER_BIT)
-   # glLoadIdentity()
-    
+
     # Draw the rectangle border
     glColor3ub(255, 255, 255)  # White color for the border
     glLineWidth(2.0)
@@ -104,12 +107,9 @@ def display_score(number):
     # Draw the digits
     draw_number(number)
     
-    # glfw.swap_buffers(Window)
-    # time.sleep(0.1)
-    # number = (number + 1) % 1000  # Cycle through numbers 0 to 999
 
 
-
+# Function to draw the snake on the screen
 def SnakeSize(x, y):
     global Snake_direction, sizeofSnake
 
@@ -122,6 +122,8 @@ def SnakeSize(x, y):
     elif Snake_direction == "down":
         return x, y + 30 + sizeofSnake
 
+
+# Function to draw the snake on the screen
 def draw_Snake(x,y):
     # Set the line width
     x1, y1 = SnakeSize(x, y)
@@ -139,6 +141,10 @@ def draw_Snake(x,y):
     glColor3ub(255, 0, 0)  # Red color for the point
     glVertex2f(x, y)
     glEnd()
+
+
+# Function to move the snake
+# Move the snake in the appropriate direction...
 
 def move_snake():
     global snake_y, snake_x, Snake_direction, reverse_direction
@@ -176,6 +182,10 @@ def move_snake():
             else:
                 snake_x += 10
 
+
+
+
+# Function to check if the snake consumes food
 def check_food_consume(snake_x, snake_y, food_point):
     global foodList, sizeofSnake, foodindex, bonusDelay, total_score
 
@@ -200,6 +210,8 @@ def check_food_consume(snake_x, snake_y, food_point):
 
     return False
 
+
+# Callback function for handling keyboard input
 def key_callback(window, key, scancode, action, mods):
     global paused, Snake_direction
 
@@ -214,17 +226,23 @@ def key_callback(window, key, scancode, action, mods):
     elif key == glfw.KEY_RIGHT and action == glfw.PRESS:
         Snake_direction = "right"
 
+
+# Function to render the score on the screen
 def render_score():
     global total_score
     display_score(total_score)
    
 
+# Main function to run the game
 def main():
     global paused, sizeofSnake, foodindex, bonusDelay, total_score,Window
 
+
+    # Initialize GLFW
     if not glfw.init():
         return
 
+    # Create a window
     Window = glfw.create_window(W, H, "Line and Points", None, None)
     if not Window:
         glfw.terminate()
@@ -251,16 +269,19 @@ def main():
                 pair = line.split(', ')
                 foodList.append((int(pair[0]), int(pair[1])))
 
+
+    
+# Main loop of the gaame
     while not glfw.window_should_close(Window):
         glClear(GL_COLOR_BUFFER_BIT)
 
         point = foodList[foodindex % 100]
-        glColor3ub(255, 255, 255)  # White color for the points
+        glColor3ub(255, 255, 255)  # White color for the food
 
         if (foodindex % bonusDelay == bonusDelay - 1):
-            glPointSize(30.0)  # Set point size
+            glPointSize(30.0)  # normal food
         else:
-            glPointSize(5.0)
+            glPointSize(5.0)  # bonus food
 
         glBegin(GL_POINTS)
         glVertex2f(point[0], point[1])
