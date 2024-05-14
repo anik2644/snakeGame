@@ -96,7 +96,7 @@ def display_score(number):
     glLineWidth(2.0)
     glBegin(GL_LINE_LOOP)
     glVertex2f(-550, 230)     # Bottom left corner
-    glVertex2f(-550, 350)    # Top left corner
+    glVertex2f(-550, 350)    # Top left cornerprojet
     glVertex2f(-250, 350)   # Top right corner
     glVertex2f(-250, 230)    # Bottom right corner
     glEnd()
