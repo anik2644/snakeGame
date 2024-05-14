@@ -1,13 +1,14 @@
-import OpenGL.GLUT as GLUT
+from OpenGL.GLUT import *
+from OpenGL.GL import *
+from OpenGL.GLU import *
 import OpenGL.GL as GL
-import OpenGL.GLU as GLU
 import glfw
+import time
 import sys
+import math
+# from character import Characters
 
-# Define the size of the window
-W, H = 1200, 800
 
-# Define the dot matrix patterns for each character
 
 CHAR_A = [
     "  *  ",
@@ -27,9 +28,9 @@ CHAR_B = [
 
 CHAR_C = [
     " *** ",
-    "*   *",
     "*    ",
-    "*   *",
+    "*    ",
+    "*    ",
     " *** "
 ]
 
@@ -233,6 +234,92 @@ Space = [
     "     "
 ]
 
+CHAR_0 = [
+    " *** ",
+    "*   *",
+    "*   *",
+    "*   *",
+    " *** "
+]
+
+CHAR_1 = [
+    "  *  ",
+    " **  ",
+    "  *  ",
+    "  *  ",
+    " *** "
+]
+
+CHAR_2 = [
+    " *** ",
+    "*   *",
+    "   * ",
+    "  *  ",
+    "*****"
+]
+
+CHAR_3 = [
+    " *** ",
+    "    *",
+    " *** ",
+    "    *",
+    " *** "
+]
+CHAR_4 = [
+    "*  * ",
+    "*  * ",
+    "*****",
+    "   * ",
+    "   * "
+]
+
+CHAR_5 = [
+    "*****",
+    "*    ",
+    "**** ",
+    "    *",
+    "**** "
+]
+
+CHAR_6 = [
+    " *** ",
+    "*    ",
+    "**** ",
+    "*   *",
+    " *** "
+]
+
+CHAR_7 = [
+    "*****",
+    "    *",
+    "   * ",
+    "  *  ",
+    " *   "
+]
+
+CHAR_8 = [
+    " *** ",
+    "*   *",
+    " *** ",
+    "*   *",
+    " *** "
+]
+
+CHAR_9 = [
+    " *** ",
+    "*   *",
+    " ****",
+    "    *",
+    " ****"
+]
+Semicolon = [
+    "  *  ",
+    "  *  ",
+    "     ",
+    "  *  ",
+    "  *  "
+]
+
 Characters = {
   'A': CHAR_A,
   'B': CHAR_B,
@@ -260,61 +347,85 @@ Characters = {
   'X': CHAR_X,
   'Y': CHAR_Y,
   'Z': CHAR_Z,
-  ' ': Space
+  ' ': Space,
+  '0': CHAR_0,
+  '1': CHAR_1,
+  '2': CHAR_2,
+  '3': CHAR_3,
+  '4': CHAR_4,
+  '5': CHAR_5,
+  '6': CHAR_6,
+  '7': CHAR_7,
+  '8': CHAR_8,
+  '9': CHAR_9,
+  ':': Semicolon
   # ... and so on for all lowercase characters
 }
 
 
-def draw_dot(x, y):
+
+# Rainbow colors
+def rainbow_color(index, total):
+    # Calculate the color using sine function to create a rainbow effect
+    r = math.sin(index / total * math.pi * 2 + 0) * 0.5 + 0.5
+    g = math.sin(index / total * math.pi * 2 + 2) * 0.5 + 0.5
+    b = math.sin(index / total * math.pi * 2 + 4) * 0.5 + 0.5
+    return r, g, b
+
+def draw_dot(x, y, color):
     GL.glPointSize(5.0)
+    GL.glColor3f(*color)
     GL.glBegin(GL.GL_POINTS)
     GL.glVertex2f(x, y)
     GL.glEnd()
 
-def display_char(char_pattern, x_offset):
+def display_char(char_pattern, x_offset, color):
     for j, row in enumerate(reversed(char_pattern)):
         for i, dot in enumerate(row):
             if dot == "*":
-                draw_dot(x_offset + i * 10, 50 + j * 10)
+                draw_dot(x_offset + i * 10, 50 + j * 10, color)
+                
+                
+    
 
-def display_word(word):
-    x_offset = -500
-    for char in word:
-        if char in Characters:
-            display_char(Characters[char], x_offset)
-            x_offset += 70  # Increase x_offset for the next character
 
-def display():
+def ddisplay_word(Window, word):
+    word_width = sum(len(Characters[char][0]) * 10 for char in word)
+    x_offset = -word_width / 2  # Center the word
+
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-    GL.glLoadIdentity()
 
-    # Display the word "ANIK"
-    display_word("NEW GAME")
+    for i, char in enumerate(word):
+        if char in Characters:
+            color = (1.0, 1.0, 1.0)  # Set color to white
+            display_char(Characters[char], x_offset, color)
+            x_offset += len(Characters[char][0]) * 10 + 10  # Increase x_offset for the next character
+
     glfw.swap_buffers(Window)
 
-def main():
-    global Window
-    if not glfw.init():
-        return
 
-    Window = glfw.create_window(W, H, "Dot Matrix Display", None, None)
-    if not Window:
-        glfw.terminate()
-        return
 
-    glfw.make_context_current(Window)
+                
+def display_word(Window,word, animate):
+    word_width = sum(len(Characters[char][0]) * 10 for char in word)
+    x_offset = -word_width / 2  # Center the word
+    
+    if animate:
+        for i, char in enumerate(word):
+            if char in Characters:
+                color = rainbow_color(i, len(word))
+                display_char(Characters[char], x_offset, color)
+                glfw.swap_buffers(Window)  # Swap buffers to display the character
+                time.sleep(0.4)  # Add delay for animation
+                x_offset += len(Characters[char][0]) * 10 + 10  # Increase x_offset for the next character
+               
+    else:
+        for i, char in enumerate(word):
+            if char in Characters:
+                color = (1.0, 1.0, 1.0)  # Set color to white (no animation)
+                glfw.swap_buffers(Window)
+                display_char(Characters[char], x_offset, color)
+                x_offset += len(Characters[char][0]) * 10 + 10  # Increase x_offset for the next character
+            time.sleep(.4)
 
-    GL.glMatrixMode(GL.GL_PROJECTION)
-    GL.glLoadIdentity()
-    GLU.gluOrtho2D(-W / 2, W / 2, -H / 2, H / 2)
-    GL.glMatrixMode(GL.GL_MODELVIEW)
-    GL.glLoadIdentity()
-
-    while not glfw.window_should_close(Window):
-        glfw.poll_events()
-        display()
-
-    glfw.terminate()
-
-if __name__ == "__main__":
-    main()
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT)

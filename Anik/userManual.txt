@@ -1,5 +1,0 @@
-Instructions for Creating the Vertex File
-
-** File Format: Create a text file named vertex.txt to store the vertices of a polygon.
-** First Line: The first line of the file should indicate the total number of points/vertices in the polygon.
-** Subsequent Lines: Following the first line, each subsequent line should contain the coordinates
